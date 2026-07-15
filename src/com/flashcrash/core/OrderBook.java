@@ -50,6 +50,20 @@ public class OrderBook {
         return id;
     }
 
+    /** Cancels a resting order. No-op if already filled/cancelled. */
+    public boolean cancel(long orderId) {
+        Order o = ordersById.remove(orderId);
+        if (o == null) return false;
+        OrderSide side = sideById.remove(orderId);
+        TreeMap<Long, ArrayDeque<Order>> book = (side == OrderSide.BUY) ? bids : asks;
+        ArrayDeque<Order> level = book.get(o.priceTicks);
+        if (level != null) {
+            level.remove(o);
+            if (level.isEmpty()) book.remove(o.priceTicks);
+        }
+        return true;
+    }
+
     private void match(Order incoming) {
         TreeMap<Long, ArrayDeque<Order>> opposite = (incoming.side == OrderSide.BUY) ? asks : bids;
 
