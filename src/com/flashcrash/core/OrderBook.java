@@ -119,6 +119,33 @@ public class OrderBook {
         sideById.put(order.id, order.side);
     }
 
+    public Long bestBidTicks() {
+        return bids.isEmpty() ? null : bids.firstKey();
+    }
+
+    public Long bestAskTicks() {
+        return asks.isEmpty() ? null : asks.firstKey();
+    }
+
+    public Double bestBid() {
+        Long t = bestBidTicks();
+        return t == null ? null : MarketConstants.ticksToPrice(t);
+    }
+
+    public Double bestAsk() {
+        Long t = bestAskTicks();
+        return t == null ? null : MarketConstants.ticksToPrice(t);
+    }
+
+    /** Mid-price, falling back to last trade price if one side of the book is empty. */
+    public double midPrice() {
+        Long b = bestBidTicks(), a = bestAskTicks();
+        if (b != null && a != null) return (MarketConstants.ticksToPrice(b) + MarketConstants.ticksToPrice(a)) / 2.0;
+        if (b != null) return MarketConstants.ticksToPrice(b);
+        if (a != null) return MarketConstants.ticksToPrice(a);
+        return lastTradePrice;
+    }
+
     /** Depth (total resting quantity) within {@code levels} price levels of the best quote on each side. */
     public int depth(int levels) {
         int total = 0;
