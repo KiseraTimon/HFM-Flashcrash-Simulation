@@ -134,4 +134,24 @@ public class OrderBook {
         }
         return total;
     }
+
+    /** Order book imbalance in [-1, 1]: (bidDepth - askDepth) / (bidDepth + askDepth) over top N levels. */
+    public double imbalance(int levels) {
+        int bidDepth = 0, askDepth = 0, i = 0;
+        for (ArrayDeque<Order> q : bids.values()) {
+            if (i++ >= levels) break;
+            for (Order o : q) bidDepth += o.remainingQty;
+        }
+        i = 0;
+        for (ArrayDeque<Order> q : asks.values()) {
+            if (i++ >= levels) break;
+            for (Order o : q) askDepth += o.remainingQty;
+        }
+        int total = bidDepth + askDepth;
+        return total == 0 ? 0.0 : (bidDepth - askDepth) / (double) total;
+    }
+
+    public int size() {
+        return ordersById.size();
+    }
 }
