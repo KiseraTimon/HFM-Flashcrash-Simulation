@@ -118,4 +118,20 @@ public class OrderBook {
         ordersById.put(order.id, order);
         sideById.put(order.id, order.side);
     }
+
+    /** Depth (total resting quantity) within {@code levels} price levels of the best quote on each side. */
+    public int depth(int levels) {
+        int total = 0;
+        int i = 0;
+        for (ArrayDeque<Order> q : bids.values()) {
+            if (i++ >= levels) break;
+            for (Order o : q) total += o.remainingQty;
+        }
+        i = 0;
+        for (ArrayDeque<Order> q : asks.values()) {
+            if (i++ >= levels) break;
+            for (Order o : q) total += o.remainingQty;
+        }
+        return total;
+    }
 }
